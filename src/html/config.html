@@ -1,0 +1,23 @@
+<section class="settings">
+  <h2 class="settings-heading">Config for Data Trimmer Plugin</h2>
+  <p class="kintoneplugin-desc">Trims value of the selected fields</p>
+  <div class="kintoneplugin-row">
+    <label for="field">
+      Field:
+      <select id="fieldSelect" class="kintoneplugin-select"></select>
+    </label>
+    <button id="addFieldBtn" type="button" class="kintoneplugin-button-new">Add Field</button>
+    <p id="allFieldsSelectedMsg" style="color:red;display:none;">All fields have been selected</p>
+  </div>
+  <div class="kintoneplugin-row">
+    <h2 class="kintoneplugin-title" data-selected-fields>Selected Fields</h2>
+    <ul id="selectedFieldsList"></ul>
+  </div>
+  <form id="dataTimmerForm">
+    <input type="hidden" name="selectedFields">
+    <div class="kintoneplugin-row">
+        <button type="button" id="cancelBtn" class="kintoneplugin-button-dialog-cancel">Cancel</button>
+        <button class="kintoneplugin-button-dialog-ok">Save</button>
+    </div>
+  </form>
+</section>

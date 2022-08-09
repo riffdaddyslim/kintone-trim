@@ -1,0 +1,42 @@
+.settings-heading {
+  padding: 1em 0 0.5em 0;
+}
+
+.kintoneplugin-input-text {
+  width: 20em;
+}
+
+.kintoneplugin-button-new {
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 0 16px;
+  min-width: 163px;
+  height: 48px;
+  outline: none;
+  border: 1px solid #e3e7e8;
+  background-color: #47b32c;
+  box-shadow: 1px 1px 1px #fff inset;
+  color: #e6e6e6;
+  text-align: center;
+  line-height: 48px;
+}
+
+.kintoneplugin-button-new:not(:disabled):hover {
+  background-color: #3a9d47;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.kintoneplugin-button-new:disabled,
+.kintoneplugin-select:disabled {
+  cursor: not-allowed;
+}
+
+[data-selected-fields]::after {
+  content: attr(data-selected-fields);
+  margin-left: 0.5rem;
+  background-color: rgb(72,72,72);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
