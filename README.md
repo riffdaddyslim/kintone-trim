@@ -2,7 +2,7 @@
 Plugin for kintone to allow whitespace trimming for specified fields
 
 ## Usage
-1. Download latest release
+1. Download latest release zip file
 2. Import plugin
 3. Choose app and app plugin to app
 4. Configure plugin
