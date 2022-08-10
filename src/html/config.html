@@ -3,8 +3,9 @@
   <p class="kintoneplugin-desc">Trims value of the selected fields</p>
   <div class="kintoneplugin-row">
     <label for="field">
-      Field:
-      <select id="fieldSelect" class="kintoneplugin-select"></select>
+      Field Code:
+      <input id="fieldCodeInput" class="kintoneplugin-input-text" list="fieldCodeDatalist" />
+      <datalist for="fieldCodeInput" id="fieldCodeDatalist"></datalist>
     </label>
     <button id="addFieldBtn" type="button" class="kintoneplugin-button-new">Add Field</button>
     <p id="allFieldsSelectedMsg" style="color:red;display:none;">All fields have been selected</p>

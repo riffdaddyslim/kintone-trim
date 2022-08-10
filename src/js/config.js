@@ -3,10 +3,11 @@ const TRIMMABLE_TYPES = ["SINGLE_LINE_TEXT", "MULTI_LINE_TEXT"];
 const PLUGIN_ID = kintone.$PLUGIN_ID;
 const APP_ID = kintone.app.getId();
 const CONFIG = kintone.plugin.app.getConfig(PLUGIN_ID);
-const SELECTED_FIELDS = CONFIG.selectedFields ? new Set(CONFIG.selectedFields.split(",")) : new Set()
+const SELECTED_FIELD_CODES = CONFIG.selectedFieldCodes ? new Set(CONFIG.selectedFieldCodes.split(",")) : new Set()
 
 // HTML Elements
-const FIELD_SELECT = document.getElementById('fieldSelect');
+const FIELD_CODE_INPUT = document.getElementById('fieldCodeInput');
+const FIELD_CODE_DATALIST = document.getElementById('fieldCodeDatalist');
 const ADD_FIELD_BUTTON = document.getElementById('addFieldBtn');
 const ALL_FIELDS_SELECTED_MSG = document.getElementById('allFieldsSelectedMsg');
 const SELECTED_FIELDS_COUNTER = document.querySelector('[data-selected-fields]');
@@ -21,10 +22,12 @@ let formFields = null;
 (() => {
   'use strict';
   
-  // Load functions
   getFields().then(res => {
+    // Gets the fields of the current form
     formFields = Object.values(res.properties).filter(field => TRIMMABLE_TYPES.includes(field.type))
-    renderFieldSelect()
+
+    // Load functions
+    renderFieldCodeDatalist()
     renderSelectedFields()
   }).catch(err => {
     throw new Error(err)
@@ -35,69 +38,96 @@ let formFields = null;
   ADD_FIELD_BUTTON.addEventListener("click", addFieldEvent);
 
   CANCEL_BUTTON.addEventListener('click', function() {
-    window.location.href = '../../' + APP_ID + '/plugin/';
+    window.location.href = '../../' + APP_ID + '/plugin/#/';
   });
+
+  document.addEventListener("keydown", e => {
+    if (FIELD_CODE_INPUT === document.activeElement && e.key === "Enter") {
+      e.preventDefault()
+      ADD_FIELD_BUTTON.click()
+    } 
+  })
 })()
 
+// Function called when FORM is submitted
 function formSubmitEvent(e) {
   e.preventDefault();
-  kintone.plugin.app.setConfig({selectedFields: Array.from(SELECTED_FIELDS).join(",")}, function() {
+  const CODES = SELECTED_FIELD_CODES.size === 0 ? "" : Array.from(SELECTED_FIELD_CODES).join(",")
+  kintone.plugin.app.setConfig({
+    selectedFieldCodes: CODES
+  }, () => {
     alert('The plug-in settings have been saved. Please update the app!');
     window.location.href = '../../flow?app=' + APP_ID;
   });
 }
 
-// Sets the value of the selected fields
+// Function called when ADD_FIELD_BUTTON is clicked
 function addFieldEvent() {
-  SELECTED_FIELDS.add(FIELD_SELECT.value)
-  renderFieldSelect()
+  if (FIELD_CODE_INPUT.value === "") return alert("No field code entered")
+  if (SELECTED_FIELD_CODES.has(FIELD_CODE_INPUT.value)) return alert("Field code already selected")
+  SELECTED_FIELD_CODES.add(FIELD_CODE_INPUT.value)
+  FIELD_CODE_INPUT.value = ""
+  renderFieldCodeDatalist()
   renderSelectedFields()
 }
 
+// Function called when a field list item is clicked on
 function removeFieldEvent(e) {
-  SELECTED_FIELDS.delete(e.target.dataset.code)
-  renderFieldSelect()
+  SELECTED_FIELD_CODES.delete(e.target.dataset.code)
+  renderFieldCodeDatalist()
   renderSelectedFields()
 }
 
+// Function that wraps kintone's api call to get all the form's fields in a promise
 function getFields() {
   return new Promise((resolve, reject) => {
-    const RESPONSE = (res) => resolve(res)
-    const ERR = (err) => { reject(err) }
-    kintone.api(kintone.api.url("/k/v1/app/form/fields", true), "GET", {"app": APP_ID}, RESPONSE, ERR)
+    kintone.api(kintone.api.url("/k/v1/app/form/fields", true), "GET", {"app": APP_ID}, resolve, reject)
   })
 }
 
-function renderFieldSelect() {
-  FIELD_SELECT.innerHTML = ""
-  const NON_SELECTED_FIELDS = formFields.filter(field => !SELECTED_FIELDS.has(field.code))
-  if (NON_SELECTED_FIELDS.length === 0) {
-    FIELD_SELECT.setAttribute("disabled", true)
-    ADD_FIELD_BUTTON.setAttribute("disabled", true)
-    ALL_FIELDS_SELECTED_MSG.style.display = "inline-block"
-  } else {
-    FIELD_SELECT.removeAttribute("disabled")
-    ADD_FIELD_BUTTON.removeAttribute("disabled")
-    ALL_FIELDS_SELECTED_MSG.style.display = "none"
-  }
+// Function to render the field select options
+function renderFieldCodeDatalist() {
+  FIELD_CODE_DATALIST.innerHTML = ""
+  const NON_SELECTED_FIELDS = formFields.filter(field => !SELECTED_FIELD_CODES.has(field.code))
+
+  // if (NON_SELECTED_FIELDS.length === 0) {
+  //   // ! CHANGE TO A BETTER DISLAY TO NOTIFY THAT THERE IS NO MORE FIELDS AVAILABLE
+  //   FIELD_SELECT.setAttribute("disabled", true)
+  //   ADD_FIELD_BUTTON.setAttribute("disabled", true)
+  //   ALL_FIELDS_SELECTED_MSG.style.display = "inline-block"
+  // } else {
+  //   FIELD_SELECT.removeAttribute("disabled")
+  //   ADD_FIELD_BUTTON.removeAttribute("disabled")
+  //   ALL_FIELDS_SELECTED_MSG.style.display = "none"
+  // }
 
   for (let field of NON_SELECTED_FIELDS) {
     const OPTION = document.createElement("option")
-    OPTION.text = field.label
     OPTION.value = field.code
-    FIELD_SELECT.appendChild(OPTION)
+    FIELD_CODE_DATALIST.appendChild(OPTION)
   }
 }
 
+// Function to render all the selected fields
 function renderSelectedFields() {
-  SELECTED_FIELDS_LIST.innerHTML = SELECTED_FIELDS.size === 0 ? "<p>No fields selected</p>" : ""
-  SELECTED_FIELDS_COUNTER.dataset.selectedFields = SELECTED_FIELDS.size
-  for (let code of SELECTED_FIELDS) {
+  SELECTED_FIELDS_LIST.innerHTML = SELECTED_FIELD_CODES.size === 0 ? "<p>No fields selected</p>" : ""
+  SELECTED_FIELDS_COUNTER.dataset.selectedFields = SELECTED_FIELD_CODES.size
+  
+  for (let code of SELECTED_FIELD_CODES) {
     const ITEM = document.createElement("li")
-    const FIELD = formFields.find(field => field.code === code)
-    ITEM.textContent = FIELD.label
-    ITEM.dataset.code = FIELD.code
-    ITEM.addEventListener("click", removeFieldEvent)
+    ITEM.setAttribute("class", "field-item")
+
+    const P = document.createElement("p")
+    P.textContent = code
+    ITEM.appendChild(P)
+
+    const CLOSE = document.createElement("button")
+    CLOSE.setAttribute("class", "field-item-close")
+    CLOSE.textContent = "Remove"
+    CLOSE.dataset.code = code
+    ITEM.appendChild(CLOSE)
+    CLOSE.addEventListener("click", removeFieldEvent)
+    
     SELECTED_FIELDS_LIST.appendChild(ITEM)
   }
 }
