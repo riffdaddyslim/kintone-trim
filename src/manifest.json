@@ -4,19 +4,14 @@
   "type": "APP",
   "desktop": {
     "js": [
-      "https://js.cybozu.com/jquery/3.3.1/jquery.min.js",
       "js/desktop.js"
     ],
-    "css": [
-      "css/51-modern-default.css",
-      "css/desktop.css"
-    ]
+    "css": []
   },
   "icon": "image/icon.png",
   "config": {
     "html": "html/config.html",
     "js": [
-      "https://js.cybozu.com/jquery/3.3.1/jquery.min.js",
       "js/config.js"
     ],
     "css": [
@@ -32,11 +27,8 @@
   },
   "mobile": {
     "js": [
-      "https://js.cybozu.com/jquery/3.3.1/jquery.min.js",
       "js/mobile.js"
     ],
-    "css": [
-      "css/mobile.css"
-    ]
+    "css": []
   }
 }

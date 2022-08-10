@@ -1,7 +1,6 @@
 // Plugin consts
-const TRIMMABLE_TYPES = ["SINGLE_LINE_TEXT", "MULTI_LINE_TEXT"];
-const PLUGIN_ID = kintone.$PLUGIN_ID;
 const APP_ID = kintone.app.getId();
+const PLUGIN_ID = kintone.$PLUGIN_ID;
 const CONFIG = kintone.plugin.app.getConfig(PLUGIN_ID);
 const SELECTED_FIELD_CODES = CONFIG.selectedFieldCodes ? new Set(CONFIG.selectedFieldCodes.split(",")) : new Set()
 
@@ -24,7 +23,7 @@ let formFields = null;
   
   getFields().then(res => {
     // Gets the fields of the current form
-    formFields = Object.values(res.properties).filter(field => TRIMMABLE_TYPES.includes(field.type))
+    formFields = Object.values(res.properties)
 
     // Load functions
     renderFieldCodeDatalist()
