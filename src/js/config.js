@@ -1,7 +1,6 @@
 // Plugin consts
 const APP_ID = kintone.app.getId();
-const PLUGIN_ID = kintone.$PLUGIN_ID;
-const CONFIG = kintone.plugin.app.getConfig(PLUGIN_ID);
+const CONFIG = kintone.plugin.app.getConfig(kintone.$PLUGIN_ID);
 const SELECTED_FIELD_CODES = CONFIG.selectedFieldCodes ? new Set(CONFIG.selectedFieldCodes.split(",")) : new Set()
 
 // HTML Elements
@@ -51,10 +50,11 @@ let formFields = null;
 // Function called when FORM is submitted
 function formSubmitEvent(e) {
   e.preventDefault();
-  const CODES = SELECTED_FIELD_CODES.size === 0 ? "" : Array.from(SELECTED_FIELD_CODES).join(",")
-  kintone.plugin.app.setConfig({
-    selectedFieldCodes: CODES
-  }, () => {
+
+  if (SELECTED_FIELD_CODES.size === 0) delete CONFIG.selectedFieldCodes
+  else CONFIG.selectedFieldCodes = Array.from(SELECTED_FIELD_CODES).join(",")
+
+  kintone.plugin.app.setConfig(CONFIG, () => {
     alert('The plug-in settings have been saved. Please update the app!');
     window.location.href = '../../flow?app=' + APP_ID;
   });
@@ -88,17 +88,6 @@ function getFields() {
 function renderFieldCodeDatalist() {
   FIELD_CODE_DATALIST.innerHTML = ""
   const NON_SELECTED_FIELDS = formFields.filter(field => !SELECTED_FIELD_CODES.has(field.code))
-
-  // if (NON_SELECTED_FIELDS.length === 0) {
-  //   // ! CHANGE TO A BETTER DISLAY TO NOTIFY THAT THERE IS NO MORE FIELDS AVAILABLE
-  //   FIELD_SELECT.setAttribute("disabled", true)
-  //   ADD_FIELD_BUTTON.setAttribute("disabled", true)
-  //   ALL_FIELDS_SELECTED_MSG.style.display = "inline-block"
-  // } else {
-  //   FIELD_SELECT.removeAttribute("disabled")
-  //   ADD_FIELD_BUTTON.removeAttribute("disabled")
-  //   ALL_FIELDS_SELECTED_MSG.style.display = "none"
-  // }
 
   for (let field of NON_SELECTED_FIELDS) {
     const OPTION = document.createElement("option")
